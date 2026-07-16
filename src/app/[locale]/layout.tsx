@@ -1,37 +1,50 @@
 import type { Metadata } from "next";
-import { Plus_Jakarta_Sans, Inter_Tight } from "next/font/google";
-import "./globals.css";
+import { Inter_Tight, Plus_Jakarta_Sans } from "next/font/google";
+import { notFound } from "next/navigation";
+
+import { isLocale, LOCALES } from "@/lib/i18n/config";
+
+import "../globals.css";
 
 const jakarta = Plus_Jakarta_Sans({
   variable: "--font-sans",
-  subsets: ["latin"],
+  subsets: ["latin", "cyrillic-ext"],
   weight: ["400", "500", "600", "700"],
 });
 
 const interTight = Inter_Tight({
   variable: "--font-heading",
-  subsets: ["latin"],
+  subsets: ["latin", "cyrillic"],
   weight: ["400", "500", "600", "700"],
 });
 
 export const metadata: Metadata = {
-  title: "BlackBoxWorld LLP — AI Product Studio",
-  description:
-    "Turn your idea into a ready-to-launch MVP in 2 weeks. BlackBoxWorld LLP — trusted by 200+ founders to design, build, and launch software products.",
   icons: {
     icon: "/seo/favicon.png",
     apple: "/seo/apple-touch-icon.png",
   },
 };
 
-export default function RootLayout({
+export function generateStaticParams() {
+  return LOCALES.map((locale) => ({ locale }));
+}
+
+export default async function LocaleLayout({
   children,
+  params,
 }: Readonly<{
   children: React.ReactNode;
+  params: Promise<{ locale: string }>;
 }>) {
+  const { locale } = await params;
+
+  if (!isLocale(locale)) {
+    notFound();
+  }
+
   return (
     <html
-      lang="en"
+      lang={locale}
       className={`${jakarta.variable} ${interTight.variable} h-full antialiased`}
     >
       <body className="min-h-full flex flex-col bg-background text-foreground">
